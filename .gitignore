@@ -130,3 +130,7 @@ dmypy.json
 
 # .idea
 .idea
+
+
+# my_files
+csv_to_db.py
