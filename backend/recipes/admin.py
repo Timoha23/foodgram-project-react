@@ -7,8 +7,10 @@ class IngredientsInLine(admin.TabularInline):
     model = IngredientInRecipeAmount
     extra = 1
 
+
 class IngredientsForAdmin(admin.ModelAdmin):
     inlines = [IngredientsInLine]
+
 
 # Register your models here.
 admin.site.register(Ingredient)

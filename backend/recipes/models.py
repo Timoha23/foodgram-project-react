@@ -10,6 +10,7 @@ class Ingredient(models.Model):
         max_length=20
     )
 
+
 class Tag(models.Model):
     name = models.CharField(
         max_length=32
@@ -24,7 +25,7 @@ class Tag(models.Model):
 
 class Recipe(models.Model):
     author = models.ForeignKey(
-        User, 
+        User,
         on_delete=models.CASCADE,
         related_name='author'
     )
@@ -37,11 +38,13 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
+        related_name='tags'
     )
     cooking_time = models.PositiveSmallIntegerField()
     pub_date = models.DateTimeField(
         auto_now_add=True
     )
+
 
 class IngredientInRecipeAmount(models.Model):
     ingredient = models.ForeignKey(

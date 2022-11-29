@@ -6,9 +6,10 @@
     "configurations": [
         {
             "name": "Python: Django",
+            "python": "${workspaceFolder}\\venv\\Scripts\\python",
             "type": "python",
             "request": "launch",
-            "program": "E:\\Diplom\\foodgram_project\\foodgram-project-react\\backend\\manage.py",
+            "program": "${workspaceFolder}\\backend\\manage.py",
             "args": [
                 "runserver"
             ],
