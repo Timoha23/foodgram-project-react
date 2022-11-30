@@ -1,3 +1,5 @@
+from django.http import HttpResponse, FileResponse
+from wsgiref.util import FileWrapper
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,8 +11,8 @@ from .permissions import IsAdminOrAuthorOrReadOnly
 from users.models import User, Follow
 from recipes.models import Ingredient, Tag, Recipe, FavoriteRecipe, ShoppingCart, IngredientInRecipeAmount
 from django.shortcuts import get_object_or_404
-from backend.settings import BASE_DIR
-
+from backend.settings import SHOPPING_ROOT
+from datetime import datetime
 import os
 
 
@@ -194,8 +196,9 @@ class RecipeInShoppingCartView(APIView):
 class LoadShoppingCart(APIView):
     """Взаимодействие с скачиванием рецепта, в котором повторяющиеся ингредиенты соеденены
     Эндпоинт /api/recipes/download_shopping_cart"""
+    # permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
-        ingredients = IngredientInRecipeAmount.objects.filter(recipe__recipeinshopcart__user=request.user)
+        ingredients = IngredientInRecipeAmount.objects.filter(recipe__recipeinshopcart__user=9)
         result = {}
         serializer = IngredientWithAmountSerializer(ingredients, many=True)
         for data in serializer.data:
@@ -206,10 +209,21 @@ class LoadShoppingCart(APIView):
                 result[name_ingredient][0] += amount_ingredient
                 continue
             result[name_ingredient] = [amount_ingredient, measurement_unit]
-
-        return Response(result)
-
-
-# def get_queryset(self):
-#         following_users = User.objects.filter(following__user=self.request.user)
-#         return following_users
+        
+        # запись списка покупок в файл
+        text_for_file = 'Список покупок:\n'
+        for key, value in result.items():
+            text_for_file += f'{key.capitalize()} ({value[1]}) - {value[0]}\n'
+        current_datetime = str(datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+        full_file_name = os.path.join(SHOPPING_ROOT, f'shop_user{request.user}_date{current_datetime}.txt')
+        with open(full_file_name, "w+", encoding='UTF-8') as shop_file:
+            shop_file.write(text_for_file)
+            a = shop_file.read()
+            print(a)
+        shop_file = open(full_file_name, 'r', encoding='UTF-8')
+        response = HttpResponse(content=shop_file, content_type='text/txt')
+        filename = 'shopitems.txt'
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+        shop_file.close()
+        os.remove(full_file_name)
+        return response
