@@ -4,11 +4,14 @@ from rest_framework.views import APIView
 from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND, HTTP_204_NO_CONTENT)
 
-from .serializers import InfoUserSerializer, SetPasswordSerializer, IngredientSerializer, TagSerializer, GetRecipeSerializer, PostRecipeSerializer, SingUpSerializer, GetSubsSerializer
+from .serializers import InfoUserSerializer, SetPasswordSerializer, IngredientSerializer, TagSerializer, GetRecipeSerializer, PostRecipeSerializer, SingUpSerializer, SubsSerializer, RecipeInFavoriteAndShoppingCartSerializer, TestSerializer, IngredientWithAmountSerializer
 from .permissions import IsAdminOrAuthorOrReadOnly
 from users.models import User, Follow
-from recipes.models import Ingredient, Tag, Recipe
+from recipes.models import Ingredient, Tag, Recipe, FavoriteRecipe, ShoppingCart, IngredientInRecipeAmount
 from django.shortcuts import get_object_or_404
+from backend.settings import BASE_DIR
+
+import os
 
 
 class UserSignUpAndView(generics.ListCreateAPIView):
@@ -37,8 +40,7 @@ class UserSignUpAndView(generics.ListCreateAPIView):
         return Response(data=serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-# СДЕЛАТЬ ЧЕРЕЗ РОУТЕР
-class UserProfiles(generics.RetrieveAPIView):
+class UserProfileView(generics.RetrieveAPIView):
     """Просмотр данных конкретного пользователя по его id
     Эндпоинт api/users/<id>/"""
     permission_classes = (permissions.IsAuthenticated,)
@@ -46,7 +48,7 @@ class UserProfiles(generics.RetrieveAPIView):
     serializer_class = InfoUserSerializer
 
 
-class UserProfile(APIView):
+class MeUserProfileView(APIView):
     """Просмотри личных данных с использованием токена
     Эндпоинт api/users/me/"""
     permission_classes = (permissions.IsAuthenticated,)
@@ -56,7 +58,7 @@ class UserProfile(APIView):
         return Response(data=serializer.data)
 
 
-class UserSetPassword(APIView):
+class UserSetPasswordView(APIView):
     """Изменение пароля юзером с использованием токена
     Эндпоинт api/users/set_password/"""
     permission_classes = (permissions.IsAuthenticated,)
@@ -98,7 +100,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
 
     def get_permissions(self):
-        if self.request.method in ("POST",):
+        if self.request.method in ("POST", "GET"):
             self.permission_classes = (permissions.IsAuthenticated,)
         return super(self.__class__, self).get_permissions()
 
@@ -108,11 +110,11 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return GetRecipeSerializer
 
 
-class UserSubscriptions(generics.ListAPIView):
+class UserSubscriptionsView(generics.ListAPIView):
     """Взаимодействие с списком подписок, обзор всех своих подписок
     Эндпоинт api/users/subscriptions/"""
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = GetSubsSerializer
+    serializer_class = SubsSerializer
 
     def get_queryset(self):
         following_users = User.objects.filter(following__user=self.request.user)
@@ -131,7 +133,7 @@ class AddSubView(APIView):
             return Response(status=HTTP_400_BAD_REQUEST)
 
         Follow.objects.create(user=request.user, author=user)
-        serializer = GetSubsSerializer(user)
+        serializer = SubsSerializer(user)
         return Response(serializer.data)
 
     def delete(self, request, pk):
@@ -140,3 +142,74 @@ class AddSubView(APIView):
             Follow.objects.filter(user=request.user, author=user).delete()
             return Response(status=HTTP_204_NO_CONTENT)
         return Response(status=HTTP_400_BAD_REQUEST)
+
+
+class RecipeInFavoriteView(APIView):
+    """Взаимодействие с добавлением в избранное рецепта
+    и его удалением
+    Эндпоинт api/recipes/<int:pk>/favorite/"""
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+
+        if FavoriteRecipe.objects.filter(user=request.user, recipe=recipe).exists():
+            return Response(status=HTTP_400_BAD_REQUEST)
+        
+        serializer = RecipeInFavoriteAndShoppingCartSerializer(recipe)
+        FavoriteRecipe.objects.create(user=request.user, recipe=recipe)
+        return Response(serializer.data)
+
+    def delete(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if FavoriteRecipe.objects.filter(user=request.user, recipe=recipe).exists():
+           FavoriteRecipe.objects.filter(user=request.user, recipe=recipe).delete()
+           return Response(status=HTTP_204_NO_CONTENT)
+        return Response(status=HTTP_400_BAD_REQUEST)
+
+
+class RecipeInShoppingCartView(APIView):
+    """Взаимодействие с добавлением, удалением рецепта из списка покупок
+    Эндпоинт /api/recipes/<int:pk>/shopping_cart/"""
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+
+        if ShoppingCart.objects.filter(user=request.user, recipe=recipe).exists():
+            return Response(status=HTTP_400_BAD_REQUEST)
+        
+        serializer = RecipeInFavoriteAndShoppingCartSerializer(recipe)
+        ShoppingCart.objects.create(user=request.user, recipe=recipe)
+        return Response(serializer.data)
+
+    def delete(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if ShoppingCart.objects.filter(user=request.user, recipe=recipe).exists():
+           ShoppingCart.objects.filter(user=request.user, recipe=recipe).delete()
+           return Response(status=HTTP_204_NO_CONTENT)
+        return Response(status=HTTP_400_BAD_REQUEST)
+
+
+class LoadShoppingCart(APIView):
+    """Взаимодействие с скачиванием рецепта, в котором повторяющиеся ингредиенты соеденены
+    Эндпоинт /api/recipes/download_shopping_cart"""
+    def get(self, request):
+        ingredients = IngredientInRecipeAmount.objects.filter(recipe__recipeinshopcart__user=request.user)
+        result = {}
+        serializer = IngredientWithAmountSerializer(ingredients, many=True)
+        for data in serializer.data:
+            name_ingredient = data.get('name')
+            amount_ingredient = data.get('amount_ingredient')
+            measurement_unit = data.get('measurement_unit')
+            if name_ingredient in result:
+                result[name_ingredient][0] += amount_ingredient
+                continue
+            result[name_ingredient] = [amount_ingredient, measurement_unit]
+
+        return Response(result)
+
+
+# def get_queryset(self):
+#         following_users = User.objects.filter(following__user=self.request.user)
+#         return following_users

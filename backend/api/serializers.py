@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from users.models import User, Follow
-from recipes.models import Ingredient, Tag, Recipe, IngredientInRecipeAmount
+from recipes.models import Ingredient, Tag, Recipe, IngredientInRecipeAmount, FavoriteRecipe, ShoppingCart
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -22,11 +22,11 @@ class InfoUserSerializer(serializers.ModelSerializer):
         try:
             request_user = self.context['request'].user
             user = obj
-            is_subscribed = Follow.objects.filter(author=user, user=request_user)
-            if is_subscribed.count() == 0:
-                return False
-            return True
-        except TypeError:
+            return Follow.objects.filter(
+                author=user,
+                user=request_user
+            ).exists()
+        except KeyError:
             return False
 
 
@@ -99,16 +99,32 @@ class GetRecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorite(self, obj):
-        return False
+        try:
+            request_user = self.context['request'].user
+            recipe = obj
+            return FavoriteRecipe.objects.filter(
+                recipe=recipe,
+                user=request_user
+            ).exists()
+        except TypeError:
+            return False
 
     def get_is_in_shopping_cart(self, obj):
-        return False
+        try:
+            request_user = self.context['request'].user
+            recipe = obj
+            return ShoppingCart.objects.filter(
+                recipe=recipe,
+                user=request_user
+            ).exists()
+        except TypeError:
+            return False
 
 
 class IngredientToRecipeSerializer(serializers.ModelSerializer):
     """Вложенный сериализатор для PostRecipeSerializer"""
     name = serializers.CharField(read_only=True, source='ingredient.name')
-    
+
     class Meta:
         model = IngredientInRecipeAmount
         fields = ('ingredient', 'amount_ingredient', 'name',)
@@ -197,7 +213,7 @@ class GetRecipeForSubs(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class GetSubsSerializer(serializers.ModelSerializer):
+class SubsSerializer(serializers.ModelSerializer):
     recipes = GetRecipeForSubs(many=True, source='author')
     recipes_count = serializers.SerializerMethodField('get_recipes_count')
     is_subscribed = serializers.SerializerMethodField('get_sub_status')
@@ -224,13 +240,17 @@ class GetSubsSerializer(serializers.ModelSerializer):
         return True
 
 
+class RecipeInFavoriteAndShoppingCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
-
-
-
-
-
+class TestSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(read_only=True, source='ingredient.name')
+    class Meta:
+        model = IngredientInRecipeAmount
+        fields = ('id', 'name', 'amount_ingredient')
 
 
 
