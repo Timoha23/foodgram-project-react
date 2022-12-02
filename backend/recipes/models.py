@@ -64,12 +64,12 @@ class FavoriteRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        # related_name='recipe'
+        related_name='favorites'
     )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='user'
+        related_name='favorites'
     )
 
 
