@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import User
+from django.core import validators
 
 
 class Ingredient(models.Model):
@@ -40,7 +41,13 @@ class Recipe(models.Model):
         Tag,
         related_name='tags'
     )
-    cooking_time = models.PositiveSmallIntegerField()
+    cooking_time = models.PositiveSmallIntegerField(
+        validators=(
+            validators.MinValueValidator(
+                1,
+            ),
+        )
+    )
     pub_date = models.DateTimeField(
         auto_now_add=True
     )
@@ -57,7 +64,11 @@ class IngredientInRecipeAmount(models.Model):
         on_delete=models.CASCADE,
         related_name='ingredientinrecipe'
     )
-    amount_ingredient = models.PositiveSmallIntegerField()
+    amount_ingredient = models.PositiveSmallIntegerField(
+        # validators=(
+        #     validators.MinValueValidator(1,),
+        # )
+    )
 
 
 class FavoriteRecipe(models.Model):

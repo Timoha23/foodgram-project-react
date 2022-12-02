@@ -200,6 +200,21 @@ class PostRecipeSerializer(serializers.ModelSerializer):
         except (KeyError, TypeError):
             return False
 
+    def validate(self, attrs):
+        ingredients = self.initial_data.get('ingredients')
+        if not ingredients:
+            raise serializers.ValidationError(
+                {'ingredients':
+                 'At least 1 ingredient must be present in the recipe'}
+            )
+        for ingredient in ingredients:
+            if ingredient.get('amount') < 1:
+                raise serializers.ValidationError(
+                    {'amount':
+                     'The count of ingredients cannot be less than 1'}
+                )
+        return attrs
+
     def create(self, validated_data):
         author = self.context['request'].user
         tags = validated_data.get("tags")
