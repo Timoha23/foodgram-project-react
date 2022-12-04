@@ -5,23 +5,42 @@ from django.core import validators
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=128
+        max_length=128,
+        verbose_name='Ингредиент'
     )
     measurement_unit = models.CharField(
-        max_length=20
+        max_length=20,
+        verbose_name='Единицы измерения'
     )
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return self.name
 
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=32
+        max_length=32,
+        verbose_name='Имя тега'
     )
     hex_code = models.CharField(
-        max_length=32
+        max_length=32,
+        verbose_name='Цвет'
     )
     slug = models.SlugField(
-        unique=True
+        unique=True,
+        verbose_name='Слаг'
     )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
 
 
 class Recipe(models.Model):
@@ -39,7 +58,7 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
-        related_name='tags'
+        related_name='tags',
     )
     cooking_time = models.PositiveSmallIntegerField(
         validators=(
@@ -52,45 +71,68 @@ class Recipe(models.Model):
         auto_now_add=True
     )
 
+    class Meta:
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+
+    def __str__(self):
+        return self.name
+
 
 class IngredientInRecipeAmount(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='ingredientinrecipe'
+        related_name='ingredientinrecipe',
+        verbose_name='Ингредиент'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredientinrecipe'
+        related_name='ingredientinrecipe',
+        verbose_name='Рецепт'
     )
     amount_ingredient = models.PositiveSmallIntegerField(
-        # validators=(
-        #     validators.MinValueValidator(1,),
-        # )
+        verbose_name='Количество'
     )
+
+    class Meta:
+        verbose_name = 'Рецепт с ингредиентом'
+        verbose_name_plural = 'Рецепты с ингредиентами'
 
 
 class FavoriteRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorites'
+        related_name='favorites',
+        verbose_name='Рецепт'
     )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favorites'
+        related_name='favorites',
+        verbose_name='Пользователь'
     )
+
+    class Meta:
+        verbose_name = 'Избранный рецепт'
+        verbose_name_plural = 'Избранные рецепты'
 
 
 class ShoppingCart(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipeinshopcart'
+        related_name='recipeinshopcart',
+        verbose_name='Рецепт'
     )
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
     )
+
+    class Meta:
+        verbose_name = 'Покупка'
+        verbose_name_plural = 'Список покупок'
