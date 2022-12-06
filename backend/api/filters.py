@@ -1,15 +1,16 @@
-import django_filters as filters
+import django_filters as filter
+from rest_framework import filters
 from recipes.models import Tag, Recipe
 
 
-class RecipeFilter(filters.FilterSet):
-    tags = filters.ModelMultipleChoiceFilter(
+class RecipeFilter(filter.FilterSet):
+    tags = filter.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         queryset=Tag.objects.all(),
         to_field_name='slug',
     )
-    is_favorited = filters.NumberFilter(method='get_is_favorited')
-    is_in_shopping_cart = filters.NumberFilter(
+    is_favorited = filter.NumberFilter(method='get_is_favorited')
+    is_in_shopping_cart = filter.NumberFilter(
         method='get_is_in_shopping_cart'
     )
 
@@ -28,3 +29,7 @@ class RecipeFilter(filters.FilterSet):
         if value == 1 and not user.is_anonymous:
             return queryset.filter(recipeinshopcart__user=user)
         return queryset.all()
+
+
+class IngredientFilter(filters.SearchFilter):
+    search_param = 'name'

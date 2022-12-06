@@ -162,7 +162,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                  'At least 1 ingredient must be present in the recipe'}
             )
         for ingredient in ingredients:
-            if ingredient.get('amount') < 1:
+            if int(ingredient.get('amount')) < 1:
                 raise serializers.ValidationError(
                     {'amount':
                      'The count of ingredients cannot be less than 1'}

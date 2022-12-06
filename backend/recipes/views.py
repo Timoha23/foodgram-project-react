@@ -6,18 +6,14 @@ from .serializers import (IngredientSerializer, PostRecipeSerializer,
                           RecipeInFavoriteAndShoppingCartSerializer,
                           IngredientWithAmountSerializer)
 from rest_framework.response import Response
-from rest_framework.filters import SearchFilter
 from api.permissions import IsAdminOrAuthorOrReadOnly
-from api.filters import RecipeFilter
+from api.filters import RecipeFilter, IngredientFilter
 from api.paginations import PageNumberAsLimitOffset
 from django.shortcuts import get_object_or_404
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_204_NO_CONTENT)
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
-from backend.settings import SHOPPING_ROOT
-from datetime import datetime
-import os
 from django.http import HttpResponse
 
 
@@ -27,7 +23,7 @@ class GetIngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (SearchFilter,)
+    filter_backends = (IngredientFilter,)
     search_fields = ('name',)
 
 
@@ -42,7 +38,7 @@ class GetTagsViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     """Взаимодействие с рецептами, получение, создание, обновление, удаление
     Эндпоинт api/recipes/"""
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.all().order_by('-pub_date')
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = PageNumberAsLimitOffset
     filter_backends = (DjangoFilterBackend,)
@@ -120,7 +116,7 @@ class RecipeInShoppingCartView(APIView):
 
 class LoadShoppingCart(APIView):
     """Взаимодействие с скачиванием рецепта, в котором повторяющиеся
-    ингредиенты соеденены
+    ингредиенты соединены
     Эндпоинт /api/recipes/download_shopping_cart"""
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -139,23 +135,12 @@ class LoadShoppingCart(APIView):
                 continue
             result[name_ingredient] = [amount_ingredient, measurement_unit]
 
-        # запись списка покупок в файл
-        # с отправкой его пользователю
-        # и последующим удалением
         text_for_file = 'Список покупок:\n'
         for key, value in result.items():
             text_for_file += f'{key.capitalize()} ({value[1]}) - {value[0]}\n'
-        current_datetime = str(datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
-        full_file_name = os.path.join(SHOPPING_ROOT,
-                                      f'shop_user{request.user}_'
-                                      f'date{current_datetime}.txt')
-        with open(full_file_name, "w+", encoding='UTF-8') as shop_file:
-            shop_file.write(text_for_file)
-        shop_file = open(full_file_name, 'r', encoding='UTF-8')
-        response = HttpResponse(content=shop_file, content_type='text/txt')
+
+        response = HttpResponse(content=text_for_file,
+                                content_type='text/plain')
         filename = 'shopitems.txt'
-        response['Content-Disposition'] = ('attachment; filename="{}"'
-                                           .format(filename))
-        shop_file.close()
-        os.remove(full_file_name)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response

@@ -135,4 +135,4 @@ dmypy.json
 # my_files
 csv_to_db.py
 /testfile.py
-shopfiles
+frontend/node_modules
