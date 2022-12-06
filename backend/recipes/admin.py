@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import (Ingredient, Tag, Recipe,
-                     IngredientInRecipeAmount, FavoriteRecipe,
-                     ShoppingCart)
+
+from .models import (FavoriteRecipe, Ingredient, IngredientInRecipeAmount,
+                     Recipe, ShoppingCart, Tag)
 
 
 # ДЛЯ ТОГО ЧТОБЫ ИНГРИДИЕНТЫ ОТОБРАЖАЛИСЬ ПРИ СОЗДАНИИ РЕЦЕПТА

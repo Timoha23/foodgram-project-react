@@ -1,20 +1,20 @@
-from .models import (Tag, Recipe, Ingredient, FavoriteRecipe,
-                     IngredientInRecipeAmount, ShoppingCart)
-from rest_framework import permissions, viewsets
-from .serializers import (IngredientSerializer, PostRecipeSerializer,
-                          GetRecipeSerializer, TagSerializer,
-                          RecipeInFavoriteAndShoppingCartSerializer,
-                          IngredientWithAmountSerializer)
-from rest_framework.response import Response
-from api.permissions import IsAdminOrAuthorOrReadOnly
-from api.filters import RecipeFilter, IngredientFilter
+from api.filters import IngredientFilter, RecipeFilter
 from api.paginations import PageNumberAsLimitOffset
-from django.shortcuts import get_object_or_404
-from rest_framework.status import (HTTP_400_BAD_REQUEST,
-                                   HTTP_204_NO_CONTENT)
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.views import APIView
+from api.permissions import IsAdminOrAuthorOrReadOnly
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import permissions, viewsets
+from rest_framework.response import Response
+from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
+from rest_framework.views import APIView
+
+from .models import (FavoriteRecipe, Ingredient, IngredientInRecipeAmount,
+                     Recipe, ShoppingCart, Tag)
+from .serializers import (GetRecipeSerializer, IngredientSerializer,
+                          IngredientWithAmountSerializer, PostRecipeSerializer,
+                          RecipeInFavoriteAndShoppingCartSerializer,
+                          TagSerializer)
 
 
 class GetIngredientsViewSet(viewsets.ReadOnlyModelViewSet):

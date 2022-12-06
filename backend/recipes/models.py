@@ -1,6 +1,6 @@
+from django.core import validators
 from django.db import models
 from users.models import User
-from django.core import validators
 
 
 class Ingredient(models.Model):
