@@ -38,9 +38,9 @@ class GetTagsViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     """Взаимодействие с рецептами, получение, создание, обновление, удаление
     Эндпоинт api/recipes/"""
-    print('TEST GETRECVIEW') ##############################################################################
     queryset = Recipe.objects.all()
-    permission_classes = (IsAdminOrAuthorOrReadOnly,)
+    # permission_classes = (IsAdminOrAuthorOrReadOnly,)
+    permission_classes = (permissions.AllowAny,)
     pagination_class = PageNumberAsLimitOffset
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter

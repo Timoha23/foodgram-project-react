@@ -48,7 +48,6 @@ class IngredientWithAmountSerializer(serializers.ModelSerializer):
 
 class GetRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для получения рецепта"""
-    print('TEST GETREC') ##############################################################################
     tags = TagSerializer(many=True)
     is_favorited = serializers.SerializerMethodField('get_is_favorite')
     is_in_shopping_cart = serializers.SerializerMethodField(
@@ -178,11 +177,6 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                                     ' числовым значением'}
                 )
 
-            # if isinstance(ingredient['amount'], int) is False:
-            #     raise serializers.ValidationError(
-            #         {'ingredients': 'Количество ингредиента должно быть'
-            #                         ' числовым значением'}
-            #     )
             if ingredient['id'] in ingredient_list:
                 raise serializers.ValidationError(
                     {'ingredients': 'Ингредиенты не могут'
