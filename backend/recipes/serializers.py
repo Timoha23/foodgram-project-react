@@ -177,12 +177,6 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                                     ' числовым значением'}
                 )
 
-            if isinstance(ingredient['amount'], int) is False:
-                raise serializers.ValidationError(
-                    {'ingredients': 'Количество ингредиента должно быть'
-                                    ' числовым значением'}
-                )
-
             if ingredient['id'] in ingredient_list:
                 raise serializers.ValidationError(
                     {'ingredients': 'Ингредиенты не могут'
@@ -190,7 +184,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                 )
             ingredient_list.append(ingredient['id'])
 
-            if ingredient.get('amount') < 1:
+            if int(ingredient.get('amount')) < 1:
                 raise serializers.ValidationError(
                     {'amount':
                         'Количество ингредиентов не может быть меньше 1'}
