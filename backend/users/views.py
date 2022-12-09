@@ -1,4 +1,3 @@
-from api.paginations import PageNumberAsLimitOffset
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
@@ -9,6 +8,7 @@ from rest_framework.views import APIView
 from .models import Follow, User
 from .serializers import (FollowSerializer, InfoUserSerializer,
                           SetPasswordSerializer, SingUpSerializer)
+from api.paginations import PageNumberAsLimitOffset
 
 
 class UserSignUpAndView(generics.ListCreateAPIView):
@@ -44,7 +44,6 @@ class UserSignUpAndView(generics.ListCreateAPIView):
 class UserProfileView(generics.RetrieveAPIView):
     """Просмотр данных конкретного пользователя по его id
     Эндпоинт api/users/<id>/"""
-    # permission_classes = (permissions.IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = InfoUserSerializer
 
@@ -71,7 +70,6 @@ class UserSetPasswordView(APIView):
                 serializer.data.get('new_password') ==
                 serializer.data.get('current_password')
             ):
-                # password = make_password(serializer.data.get('new_password'))
                 password = (serializer.data.get('new_password'))
                 user = User.objects.get(username=request.user)
                 user.set_password(password)

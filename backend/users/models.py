@@ -1,9 +1,10 @@
+from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.db import models
 
 
 class User(AbstractUser):
+    """Модель юзера"""
     username = models.CharField(
         'Логин',
         max_length=150,
@@ -19,18 +20,15 @@ class User(AbstractUser):
         'Email адрес',
         max_length=254,
         unique=True,
-        blank=False,
     )
 
     first_name = models.CharField(
         'Имя',
         max_length=150,
-        blank=False,
     )
     last_name = models.CharField(
         'Фамилия',
         max_length=150,
-        blank=False,
     )
 
     def __str__(self):
@@ -38,6 +36,7 @@ class User(AbstractUser):
 
 
 class Follow(models.Model):
+    """Модель подписок"""
     author = models.ForeignKey(
         User,
         related_name='following',
@@ -56,3 +55,6 @@ class Follow(models.Model):
         verbose_name_plural = 'Список подписок'
         constraints = [models.UniqueConstraint(fields=('user', 'author'),
                        name='Уникальные значения')]
+
+    def __str__(self):
+        return self.author

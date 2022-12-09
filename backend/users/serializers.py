@@ -1,10 +1,11 @@
-from recipes.models import Recipe
 from rest_framework import serializers
 
 from .models import Follow, User
+from recipes.models import Recipe
 
 
 class InfoUserSerializer(serializers.ModelSerializer):
+    """Сериализатор для просмотра информации о юзере"""
     is_subscribed = serializers.SerializerMethodField('get_sub_status')
 
     class Meta:
@@ -21,16 +22,18 @@ class InfoUserSerializer(serializers.ModelSerializer):
     def get_sub_status(self, obj):
         try:
             request_user = self.context['request'].user
-            user = obj
-            return Follow.objects.filter(
-                author=user,
-                user=request_user
-            ).exists()
         except (KeyError, TypeError):
             return False
 
+        user = obj
+        return Follow.objects.filter(
+            author=user,
+            user=request_user
+        ).exists()
+
 
 class SingUpSerializer(serializers.ModelSerializer):
+    """Сериализатор для регистрации юзера"""
     id = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
@@ -46,6 +49,7 @@ class SingUpSerializer(serializers.ModelSerializer):
 
 
 class SetPasswordSerializer(serializers.Serializer):
+    """Сериализатор для изменения пароля"""
     new_password = serializers.CharField(max_length=154)
     current_password = serializers.CharField(max_length=154)
 
@@ -58,9 +62,10 @@ class GetRecipeForFollow(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    """Сериализатор подписок"""
     recipes = serializers.SerializerMethodField('get_recipes')
     recipes_count = serializers.SerializerMethodField('get_recipes_count')
-    is_subscribed = serializers.SerializerMethodField('get_sub_status')
+    is_subscribed = True
 
     class Meta:
         model = User
@@ -79,9 +84,6 @@ class FollowSerializer(serializers.ModelSerializer):
     def get_recipes_count(self, obj):
         recipes_count = Recipe.objects.filter(author=obj).count()
         return recipes_count
-
-    def get_sub_status(self, obj):
-        return True
 
     def get_recipes(self, obj):
         try:

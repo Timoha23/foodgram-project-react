@@ -1,9 +1,11 @@
 from django.core import validators
 from django.db import models
+
 from users.models import User
 
 
 class Ingredient(models.Model):
+    """Модель ингредиентов"""
     name = models.CharField(
         max_length=128,
         verbose_name='Ингредиент'
@@ -22,28 +24,35 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
+    """Модель тегов"""
     name = models.CharField(
         max_length=32,
-        verbose_name='Имя тега'
+        verbose_name='Имя тега',
+        unique=True
     )
     hex_code = models.CharField(
         max_length=32,
-        verbose_name='Цвет'
+        verbose_name='Цвет',
+        unique=True,
+        validators=(
+            validators.RegexValidator(regex=r'^#[a-fA-F0-9]{6}$'),
+        )
     )
     slug = models.SlugField(
         unique=True,
         verbose_name='Слаг'
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
+    def __str__(self):
+        return self.name
+
 
 class Recipe(models.Model):
+    """Модель рецептов"""
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -65,6 +74,9 @@ class Recipe(models.Model):
             validators.MinValueValidator(
                 1,
             ),
+            validators.MaxValueValidator(
+                10_000,
+            ),
         )
     )
     pub_date = models.DateTimeField(
@@ -74,12 +86,14 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.name
 
 
 class IngredientInRecipeAmount(models.Model):
+    """Модель количества ингредиентов в рецепте"""
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -93,15 +107,27 @@ class IngredientInRecipeAmount(models.Model):
         verbose_name='Рецепт'
     )
     amount_ingredient = models.PositiveSmallIntegerField(
-        verbose_name='Количество'
+        verbose_name='Количество',
+        validators=(
+            validators.MinValueValidator(
+                0,
+            ),
+            validators.MaxValueValidator(
+                10_000,
+            ),
+        )
     )
 
     class Meta:
         verbose_name = 'Рецепт с ингредиентом'
         verbose_name_plural = 'Рецепты с ингредиентами'
 
+    def __str__(self):
+        return self.recipe
+
 
 class FavoriteRecipe(models.Model):
+    """Модель избранных рецептов"""
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -119,8 +145,12 @@ class FavoriteRecipe(models.Model):
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
 
+    def __str__(self):
+        return self.recipe
+
 
 class ShoppingCart(models.Model):
+    """Модель списка покупок"""
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -136,3 +166,6 @@ class ShoppingCart(models.Model):
     class Meta:
         verbose_name = 'Покупка'
         verbose_name_plural = 'Список покупок'
+
+    def __str__(self):
+        return self.recipe
