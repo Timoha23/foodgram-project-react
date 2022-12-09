@@ -38,6 +38,7 @@ class GetTagsViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     """Взаимодействие с рецептами, получение, создание, обновление, удаление
     Эндпоинт api/recipes/"""
+    print('TEST GETRECVIEW') ##############################################################################
     queryset = Recipe.objects.all()
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = PageNumberAsLimitOffset
