@@ -39,8 +39,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     """Взаимодействие с рецептами, получение, создание, обновление, удаление
     Эндпоинт api/recipes/"""
     queryset = Recipe.objects.all()
-    # permission_classes = (IsAdminOrAuthorOrReadOnly,)
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = PageNumberAsLimitOffset
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter

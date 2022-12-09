@@ -49,10 +49,12 @@ class IngredientWithAmountSerializer(serializers.ModelSerializer):
 class GetRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для получения рецепта"""
     tags = TagSerializer(many=True)
-    is_favorited = serializers.SerializerMethodField('get_is_favorite')
-    is_in_shopping_cart = serializers.SerializerMethodField(
-        'get_is_in_shopping_cart'
-    )
+    # is_favorited = serializers.SerializerMethodField('get_is_favorite')
+    # is_in_shopping_cart = serializers.SerializerMethodField(
+    #     'get_is_in_shopping_cart'
+    # )
+    is_favorite = False
+    is_in_shoppint_cart = False
     author = InfoUserSerializer()
     ingredients = IngredientWithAmountSerializer(many=True,
                                                  source='ingredientinrecipe')
@@ -72,29 +74,29 @@ class GetRecipeSerializer(serializers.ModelSerializer):
             'cooking_time',
         )
 
-    def get_is_favorite(self, obj):
-        try:
-            request_user = self.context['request'].user
-        except (KeyError, TypeError):
-            return False
+    # def get_is_favorite(self, obj):
+    #     try:
+    #         request_user = self.context['request'].user
+    #     except (KeyError, TypeError):
+    #         return False
 
-        recipe = obj
-        return FavoriteRecipe.objects.filter(
-            recipe=recipe,
-            user=request_user
-        ).exists()
+    #     recipe = obj
+    #     return FavoriteRecipe.objects.filter(
+    #         recipe=recipe,
+    #         user=request_user
+    #     ).exists()
 
-    def get_is_in_shopping_cart(self, obj):
-        try:
-            request_user = self.context['request'].user
-        except (KeyError, TypeError):
-            return False
+    # def get_is_in_shopping_cart(self, obj):
+    #     try:
+    #         request_user = self.context['request'].user
+    #     except (KeyError, TypeError):
+    #         return False
 
-        recipe = obj
-        return ShoppingCart.objects.filter(
-            recipe=recipe,
-            user=request_user
-        ).exists()
+    #     recipe = obj
+    #     return ShoppingCart.objects.filter(
+    #         recipe=recipe,
+    #         user=request_user
+    #     ).exists()
 
 
 class IngredientToRecipeSerializer(serializers.ModelSerializer):
