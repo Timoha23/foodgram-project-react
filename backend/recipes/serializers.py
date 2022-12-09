@@ -177,11 +177,11 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                                     ' числовым значением'}
                 )
 
-            if isinstance(ingredient['amount'], int) is False:
-                raise serializers.ValidationError(
-                    {'ingredients': 'Количество ингредиента должно быть'
-                                    ' числовым значением'}
-                )
+            # if isinstance(ingredient['amount'], int) is False:
+            #     raise serializers.ValidationError(
+            #         {'ingredients': 'Количество ингредиента должно быть'
+            #                         ' числовым значением'}
+            #     )
 
             if ingredient['id'] in ingredient_list:
                 raise serializers.ValidationError(
