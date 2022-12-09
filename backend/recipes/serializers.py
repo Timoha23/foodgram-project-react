@@ -182,7 +182,6 @@ class PostRecipeSerializer(serializers.ModelSerializer):
             #         {'ingredients': 'Количество ингредиента должно быть'
             #                         ' числовым значением'}
             #     )
-
             if ingredient['id'] in ingredient_list:
                 raise serializers.ValidationError(
                     {'ingredients': 'Ингредиенты не могут'
