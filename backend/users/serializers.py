@@ -22,9 +22,10 @@ class InfoUserSerializer(serializers.ModelSerializer):
     def get_sub_status(self, obj):
         try:
             request_user = self.context['request'].user
+            if request_user.is_anonymous:
+                return False
         except (KeyError, TypeError):
             return False
-
         user = obj
         return Follow.objects.filter(
             author=user,
@@ -65,7 +66,7 @@ class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор подписок"""
     recipes = serializers.SerializerMethodField('get_recipes')
     recipes_count = serializers.SerializerMethodField('get_recipes_count')
-    is_subscribed = serializers.SerializerMethodField('get_sub_status')
+    is_subscribed = True
 
     class Meta:
         model = User
@@ -80,9 +81,6 @@ class FollowSerializer(serializers.ModelSerializer):
             "recipes",
             "recipes_count",
         )
-
-    def get_sub_status(self, obj): #################################
-        return True 
 
     def get_recipes_count(self, obj):
         recipes_count = Recipe.objects.filter(author=obj).count()

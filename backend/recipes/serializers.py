@@ -75,6 +75,8 @@ class GetRecipeSerializer(serializers.ModelSerializer):
     def get_is_favorite(self, obj):
         try:
             request_user = self.context['request'].user
+            if request_user.is_anonymous:
+                return False
         except (KeyError, TypeError):
             return False
 
@@ -87,6 +89,8 @@ class GetRecipeSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         try:
             request_user = self.context['request'].user
+            if request_user.is_anonymous:
+                return False
         except (KeyError, TypeError):
             return False
 
