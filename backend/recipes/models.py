@@ -122,9 +122,6 @@ class IngredientInRecipeAmount(models.Model):
         verbose_name = 'Рецепт с ингредиентом'
         verbose_name_plural = 'Рецепты с ингредиентами'
 
-    def __str__(self):
-        return self.ingredient, self.amount_ingredient
-
 
 class FavoriteRecipe(models.Model):
     """Модель избранных рецептов"""
