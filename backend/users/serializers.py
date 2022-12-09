@@ -65,7 +65,7 @@ class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор подписок"""
     recipes = serializers.SerializerMethodField('get_recipes')
     recipes_count = serializers.SerializerMethodField('get_recipes_count')
-    is_subscribed = True
+    is_subscribed = serializers.SerializerMethodField('get_sub_status')
 
     class Meta:
         model = User
@@ -80,6 +80,9 @@ class FollowSerializer(serializers.ModelSerializer):
             "recipes",
             "recipes_count",
         )
+
+    def get_sub_status(self, obj): #################################
+        return True 
 
     def get_recipes_count(self, obj):
         recipes_count = Recipe.objects.filter(author=obj).count()
