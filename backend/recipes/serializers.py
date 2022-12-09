@@ -189,7 +189,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                 )
             ingredient_list.append(ingredient['id'])
 
-            if ingredient.get('amount') < 1:
+            if int(ingredient.get('amount')) < 1:
                 raise serializers.ValidationError(
                     {'amount':
                         'Количество ингредиентов не может быть меньше 1'}
