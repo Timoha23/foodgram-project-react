@@ -136,3 +136,4 @@ dmypy.json
 csv_to_db.py
 /testfile.py
 frontend/node_modules
+/.vscode
