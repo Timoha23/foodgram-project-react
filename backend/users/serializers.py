@@ -66,7 +66,7 @@ class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор подписок"""
     recipes = serializers.SerializerMethodField('get_recipes')
     recipes_count = serializers.SerializerMethodField('get_recipes_count')
-    is_subscribed = True
+    is_subscribed = serializers.ReadOnlyField(default=True)
 
     class Meta:
         model = User
