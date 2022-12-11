@@ -51,10 +51,11 @@ class Tag(models.Model):
         return self.name
 
     def clean(self):
-        if self.hex_code.upper() in Tag.objects.all():
-            raise exceptions.ValidationError(
-                {'hex_code': 'Данный hex_code уже присутствует в базе'}
-            )
+        for tag in Tag.objects.all():
+            if self.hex_code.upper()==tag.hex_code.upper():
+                raise exceptions.ValidationError(
+                    {'hex_code': 'Данный hex_code уже присутствует в базе'}
+                )
 
 
 class Recipe(models.Model):
