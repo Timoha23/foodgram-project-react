@@ -245,6 +245,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         print(validated_data)
+        print(instance)
         instance.name = validated_data.get('name', instance.name)
         ingredients = validated_data.get('ingredientinrecipe')
         tags = validated_data.get('tags')
@@ -263,7 +264,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                 ingredient=ingredient_obj,
                 recipe=instance,
                 amount_ingredient=amount,
-            ).save()
+            )
 
         instance.save()
         return instance
