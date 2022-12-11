@@ -247,7 +247,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
         print(validated_data)
         print(instance)
         instance.name = validated_data.get('name', instance.name)
-        ingredients = validated_data.get('ingredientinrecipe')
+        ingredients = validated_data.pop('ingredientinrecipe')
         tags = validated_data.get('tags')
         instance.text = validated_data.get('text', instance.text)
         instance.image = validated_data.get('image', instance.image)
@@ -260,14 +260,12 @@ class PostRecipeSerializer(serializers.ModelSerializer):
             ingredient_id = ingredient.get('ingredient').get('id')
             ingredient_obj = get_object_or_404(Ingredient, id=ingredient_id)
             amount = ingredient.get('amount_ingredient')
-            IngredientInRecipeAmount.objects.get_or_create(
+            IngredientInRecipeAmount.objects.get(
                 ingredient=ingredient_obj,
                 recipe=instance,
                 amount_ingredient=amount,
             )
-
-        # instance.save()
-        return instance
+        return super().update(instance)
 
 
 class RecipeInFavoriteAndShoppingCartSerializer(serializers.ModelSerializer):
