@@ -263,7 +263,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                 recipe=instance,
                 amount_ingredient=amount,
             )
-        ingredient_objects.append(ingredient_obj) 
+            ingredient_objects.append(ingredient_obj) 
         instance.ingredients.set(ingredient_objects) 
         instance.save()
         return instance
