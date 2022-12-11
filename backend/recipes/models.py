@@ -1,4 +1,4 @@
-from django.core import validators
+from django.core import validators, exceptions
 from django.db import models
 
 from users.models import User
@@ -49,6 +49,12 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if self.hex_code.upper() in Tag.objects.all():
+            raise exceptions.ValidationError(
+                {'hex_code': 'Данный hex_code уже присутствует в базе'}
+            )
 
 
 class Recipe(models.Model):
