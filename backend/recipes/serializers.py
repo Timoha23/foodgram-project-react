@@ -244,6 +244,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
+        print(validated_data)
         instance.name = validated_data.get('name', instance.name)
         ingredients = validated_data.get('ingredientinrecipe')
         tags = validated_data.get('tags')
@@ -255,7 +256,6 @@ class PostRecipeSerializer(serializers.ModelSerializer):
         
         IngredientInRecipeAmount.objects.filter(recipe=instance).delete()
         for ingredient in ingredients:
-            print(ingredient)
             ingredient_id = ingredient.get('ingredient').get('id')
             ingredient_obj = get_object_or_404(Ingredient, id=ingredient_id)
             amount = ingredient.get('amount_ingredient')
