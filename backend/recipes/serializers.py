@@ -265,7 +265,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                 recipe=instance,
                 amount_ingredient=amount,
             )
-        return super().update(instance)
+        return instance
 
 
 class RecipeInFavoriteAndShoppingCartSerializer(serializers.ModelSerializer):
