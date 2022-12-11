@@ -256,8 +256,11 @@ class PostRecipeSerializer(serializers.ModelSerializer):
         
         IngredientInRecipeAmount.objects.filter(recipe=instance).delete()
         for ingredient in ingredients:
+            print(ingredient)
             ingredient_id = ingredient.get('ingredient').get('id')
+            print(ingredient_id)
             ingredient_obj = get_object_or_404(Ingredient, id=ingredient_id)
+            print(ingredient_obj)
             amount = ingredient['amount_ingredient']
             IngredientInRecipeAmount.objects.create(
                 ingredient=ingredient_obj,
