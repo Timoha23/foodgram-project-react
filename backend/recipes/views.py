@@ -131,7 +131,7 @@ class LoadShoppingCart(APIView):
             amount_ingredient = data.get('amount')
             measurement_unit = data.get('measurement_unit')
             if name_ingredient in result:
-                result[name_ingredient][0] += int(amount_ingredient)
+                result[name_ingredient][0] += amount_ingredient
                 continue
             result[name_ingredient] = [amount_ingredient, measurement_unit]
 
