@@ -57,4 +57,4 @@ class Follow(models.Model):
                        name='Уникальные значения')]
 
     def __str__(self):
-        return self.author
+        return self.author.username
