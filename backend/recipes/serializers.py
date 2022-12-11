@@ -260,13 +260,13 @@ class PostRecipeSerializer(serializers.ModelSerializer):
             ingredient_id = ingredient.get('ingredient').get('id')
             ingredient_obj = get_object_or_404(Ingredient, id=ingredient_id)
             amount = ingredient.get('amount_ingredient')
-            IngredientInRecipeAmount.objects.create(
+            IngredientInRecipeAmount.objects.get_or_create(
                 ingredient=ingredient_obj,
                 recipe=instance,
                 amount_ingredient=amount,
             )
 
-        instance.save()
+        # instance.save()
         return instance
 
 
