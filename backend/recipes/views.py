@@ -128,7 +128,7 @@ class LoadShoppingCart(APIView):
         serializer = IngredientWithAmountSerializer(ingredients, many=True)
         for data in serializer.data:
             name_ingredient = data.get('name')
-            amount_ingredient = data.get('amount')
+            amount_ingredient = int(data.get('amount'))
             measurement_unit = data.get('measurement_unit')
             if name_ingredient in result:
                 result[name_ingredient][0] += amount_ingredient
