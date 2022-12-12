@@ -1,3 +1,4 @@
+from django.core import exceptions
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -56,5 +57,11 @@ class Follow(models.Model):
         constraints = [models.UniqueConstraint(fields=('user', 'author'),
                        name='Уникальные значения')]
 
+    def clean(self):
+        if self.author==self.user:
+            raise exceptions.ValidationError(
+                {'Ошибка': 'Нельзя подписаться на самого себя'}
+            )
+
     def __str__(self):
-        return self.author.username
+        return f'А:{self.author.username} П:{self.user.username}'

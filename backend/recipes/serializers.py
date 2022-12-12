@@ -28,6 +28,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 class IngredientWithAmountSerializer(serializers.ModelSerializer):
     """Вложенный сериализатор для GetRecipeSerializer"""
+    id = serializers.IntegerField(source="ingredient.id")
     name = serializers.CharField(
         read_only=True,
         source='ingredient.name'
@@ -116,6 +117,7 @@ class IngredientToRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit', 'amount',)
 
 
+
 class PostRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для публикации рецепта"""
     ingredients = IngredientToRecipeSerializer(many=True,
@@ -175,6 +177,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                  'Как минимум 1 ингредиент должен присутствовать в рецепте'}
             )
         for ingredient in ingredients:
+
             if isinstance(ingredient['id'], int) is False:
                 raise serializers.ValidationError(
                     {'ingredients': 'id ингредиента должно быть'
@@ -193,6 +196,11 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {'amount':
                         'Количество ингредиентов не может быть меньше 1'}
+                    )
+            elif int(ingredient.get('amount')) > 10000:
+                raise serializers.ValidationError(
+                    {'amount':
+                        'Количество ингредиентов не может быть больше 10000'}
                     )
         except ValueError:
             return serializers.ValidationError({
@@ -244,6 +252,7 @@ class PostRecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
+        print(validated_data)
         instance.name = validated_data.get('name', instance.name)
         ingredients = validated_data.get('ingredientinrecipe')
         tags = validated_data.get('tags')
@@ -252,7 +261,6 @@ class PostRecipeSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get('cooking_time',
                                                    instance.cooking_time)
         instance.tags.set(tags)
-        ingredient_objects = []
         IngredientInRecipeAmount.objects.filter(recipe=instance).delete()
         for ingredient in ingredients:
             ingredient_id = ingredient.get('ingredient').get('id')
@@ -263,9 +271,6 @@ class PostRecipeSerializer(serializers.ModelSerializer):
                 recipe=instance,
                 amount_ingredient=amount,
             )
-            ingredient_objects.append(ingredient_obj) 
-        instance.ingredients.set(ingredient_objects) 
-        instance.save()
         return instance
 
 

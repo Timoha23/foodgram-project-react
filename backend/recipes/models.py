@@ -47,15 +47,15 @@ class Tag(models.Model):
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
-    def __str__(self):
-        return self.name
-
     def clean(self):
         for tag in Tag.objects.all():
             if self.hex_code.upper()==tag.hex_code.upper():
                 raise exceptions.ValidationError(
                     {'hex_code': 'Данный hex_code уже присутствует в базе'}
                 )
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):
