@@ -60,7 +60,7 @@ class Follow(models.Model):
     def clean(self):
         if self.author==self.user:
             raise exceptions.ValidationError(
-                {'Ошибка': 'Нельзя подписаться на самого себя'}
+                'Нельзя подписаться на самого себя'
             )
 
     def __str__(self):
